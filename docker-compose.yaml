@@ -1,0 +1,18 @@
+app:
+  build: .
+  links:
+    - database
+  volumes:
+    - "./flaskapp:/opt/flaskapp"
+  environment:
+    - "FLASK_DEBUG=1"
+  ports:
+    - "5000:5000"
+database:
+  image: mysql
+  environment:
+    - "MYSQL_ROOT_PASSWORD=passw0rd"
+  volumes:
+    - "./mysql:/opt"
+  ports:
+    - 3306

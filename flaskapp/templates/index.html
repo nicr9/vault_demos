@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Flask/MySQL/Vault Demo</title>
+        <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+              $('button').click(function(){
+
+                  $.ajax({
+                      url: '/send-task',
+                      data: $('form').serialize(),
+                      type: 'POST',
+                      success: function(response){
+                          console.log(response);
+                      },
+                      error: function(error){
+                          console.log(error);
+                      }
+                  });
+
+              });
+            });
+        </script>
+
+    </head>
+
+    <body>
+
+        <div class="container">
+            <div class="header">
+                <nav>
+                    <ul class="nav nav-pills pull-right">
+                        <li role="presentation" class="active"><a href="/">Tasks</a>
+                        </li>
+                    </ul>
+                </nav>
+                <h3 class="text-muted">Vault Demo: Flask/MySQL</h3>
+            </div>
+
+            <div class="jumbotron">
+                <h2>Create new Task</h2>
+                <form class="form-new-task">
+                  <label for="inputTitle" class="sr-only">Title</label>
+                  <input type="name" name="inputTitle" id="inputTitle" class="form-control" placeholder="Title" required autofocus>
+                  <label for="inputBody" class="sr-only">Body</label>
+                  <input type="string" name="inputBody" id="inputBody" class="form-control" placeholder="Body" required autofocus>
+
+                  <button id="btnNewTask" class="btn btn-lg btn-primary btn-block">Add task</button>
+                </form>
+            </div>
+
+            <h3>Tasks</h3>
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Body</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in tasks %}
+                    <tr>
+                        <td>{{ row.title }}</td>
+                        <td>{{ row.body }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </body>
+</html>
