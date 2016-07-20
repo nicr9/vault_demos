@@ -1,6 +1,13 @@
+vault:
+  image: kintoandar/hashicorp-vault
+  environment:
+    - "VAULT_ADDR=http://127.0.0.1:8300"
+  links:
+    - database
 app:
   build: .
   links:
+    - vault
     - database
   volumes:
     - "./flaskapp:/opt/flaskapp"

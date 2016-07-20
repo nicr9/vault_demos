@@ -2,7 +2,7 @@ PROJECT=vaultdemo
 MYSQL_PASSWORD=passw0rd
 COMPOSE=docker-compose --project=${PROJECT}
 
-all: db-up db-wait db-init app-up
+all: vault-up db-up db-wait db-init vault-init app-up
 
 down:
 	${COMPOSE} down
@@ -31,6 +31,9 @@ db-describe:
 db-select:
 	docker exec ${PROJECT}_database_1 mysql -uroot --password=${MYSQL_PASSWORD} -D VaultDemo -e 'select * from todolist'
 
+db-users:
+	docker exec ${PROJECT}_database_1 mysql -uroot --password=${MYSQL_PASSWORD} -e 'select User from mysql.user'
+
 db-shell:
 	docker exec -it ${PROJECT}_database_1 mysql -uroot --password=${MYSQL_PASSWORD} -D VaultDemo
 
@@ -42,10 +45,10 @@ db-logs:
 
 ## App
 
-app-up:
+app-up: vault-token
 	${COMPOSE} up -d app
 
-app-recreate:
+app-recreate: vault-revoke vault-token
 	${COMPOSE} up -d --force-recreate app
 
 app-build:
@@ -61,3 +64,38 @@ app-bash:
 
 app-logs:
 	${COMPOSE} logs -f app
+
+## Vault
+
+vault-up:
+	${COMPOSE} up -d vault
+
+vault-recreate:
+	${COMPOSE} up -d --force-recreate vault
+
+vault-build:
+	${COMPOSE} build vault
+
+vault-reload: vault-build vault-up
+
+vault-down:
+	${COMPOSE} down vault
+
+vault-bash:
+	docker exec -it ${PROJECT}_vault_1 /bin/sh
+
+vault-logs:
+	${COMPOSE} logs -f vault
+
+vault-init:
+	docker exec ${PROJECT}_vault_1 vault mount mysql
+	docker exec ${PROJECT}_vault_1 vault write mysql/config/connection connection_url="root:${MYSQL_PASSWORD}@tcp(database:3306)/"
+	docker exec ${PROJECT}_vault_1 vault write mysql/config/lease lease=1h lease_max=24h
+	docker exec ${PROJECT}_vault_1 vault write mysql/roles/flaskapp sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT ALL ON *.* TO '{{name}}'@'%';"
+
+vault-token:
+	docker exec ${PROJECT}_vault_1 vault token-create --format=json > flaskapp/vault.token
+
+vault-revoke:
+	jq -r .auth.client_token flaskapp/vault.token | xargs docker exec ${PROJECT}_vault_1 vault token-revoke
+	rm flaskapp/vault.token

@@ -1,14 +1,31 @@
 from flask import Flask, render_template, json, request
 from flask_mysqldb import MySQL
+from json import load as json_load
+from hvac import Client as Vault
 
+# Initialise Flask and MySQL plugin
 app = Flask(__name__)
 mysql = MySQL(app)
 
 # Configure
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'passw0rd'
-app.config['MYSQL_DB'] = 'VaultDemo'
 app.config['MYSQL_HOST'] = 'database'
+app.config['MYSQL_DB'] = 'VaultDemo'
+
+# Initialise Vault client
+client = Vault("http://vault:8300")
+with open("/opt/flaskapp/vault.token") as inp:
+    token = json_load(inp)
+    client.token = token['auth']['client_token']
+
+# Grab MySQL creds from Vault
+if client.is_authenticated():
+    creds = client.read("mysql/creds/flaskapp")
+
+    userpass = creds['data']
+    app.config['MYSQL_PASSWORD'] = userpass['password']
+    app.config['MYSQL_USER'] = userpass['username']
+else:
+    exit(1)
 
 @app.route("/")
 def main():

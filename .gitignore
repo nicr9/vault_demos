@@ -1,3 +1,4 @@
 *.done
 .*.sw?
 *.py?
+flaskapp/vault.token
