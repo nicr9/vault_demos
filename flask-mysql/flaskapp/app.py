@@ -11,21 +11,22 @@ mysql = MySQL(app)
 app.config['MYSQL_HOST'] = 'database'
 app.config['MYSQL_DB'] = 'VaultDemo'
 
-# Initialise Vault client
-client = Vault("http://vault:8300")
-with open("/opt/flaskapp/vault.token") as inp:
-    token = json_load(inp)
-    client.token = token['auth']['client_token']
+def authenticate_mysql():
+    # Initialise Vault client
+    client = Vault("http://vault:8300")
+    with open("/opt/flaskapp/vault.token") as inp:
+        token = json_load(inp)
+        client.token = token['auth']['client_token']
 
-# Grab MySQL creds from Vault
-if client.is_authenticated():
-    creds = client.read("mysql/creds/flaskapp")
+    # Grab MySQL creds from Vault
+    if client.is_authenticated():
+        creds = client.read("mysql/creds/flaskapp")
 
-    userpass = creds['data']
-    app.config['MYSQL_PASSWORD'] = userpass['password']
-    app.config['MYSQL_USER'] = userpass['username']
-else:
-    exit(1)
+        userpass = creds['data']
+        app.config['MYSQL_PASSWORD'] = userpass['password']
+        app.config['MYSQL_USER'] = userpass['username']
+    else:
+        exit(1)
 
 @app.route("/")
 def main():
@@ -66,4 +67,5 @@ def send_task():
         mysql.connection.commit()
 
 if __name__ == "__main__":
+    authenticate_mysql()
     app.run(host="0.0.0.0")
