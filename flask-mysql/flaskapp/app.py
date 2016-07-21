@@ -1,6 +1,7 @@
 from flask import Flask, render_template, json, request
 from flask_mysqldb import MySQL
 from json import load as json_load
+from json import dumps as json_dumps
 from hvac import Client as Vault
 
 # Initialise Flask and MySQL plugin
@@ -11,7 +12,11 @@ mysql = MySQL(app)
 app.config['MYSQL_HOST'] = 'database'
 app.config['MYSQL_DB'] = 'VaultDemo'
 
+MYSQL_CREDENTIALS = 'Unauthenticated'
+
 def authenticate_mysql():
+    global MYSQL_CREDENTIALS
+
     # Initialise Vault client
     client = Vault("http://vault:8300")
     with open("/opt/flaskapp/vault.token") as inp:
@@ -25,6 +30,10 @@ def authenticate_mysql():
         userpass = creds['data']
         app.config['MYSQL_PASSWORD'] = userpass['password']
         app.config['MYSQL_USER'] = userpass['username']
+
+        # Hide MySQL password and store credential details
+        creds['data']['password'] = "*****"
+        MYSQL_CREDENTIALS = creds
     else:
         exit(1)
 
@@ -40,7 +49,11 @@ def main():
         results = [{'title': title, 'body': body}
                 for _, title, body in cur.fetchall()]
 
-    return render_template("index.html", tasks=results)
+    return render_template(
+            "index.html",
+            tasks=results,
+            creds=json_dumps(MYSQL_CREDENTIALS, separators=(',<br>', ': ')),
+            )
 
 @app.route("/send-task", methods=['POST'])
 def send_task():
