@@ -4,7 +4,7 @@ COMPOSE=docker-compose --project=${PROJECT}
 
 all: vault-up db-up db-wait db-init vault-init app-up
 
-down:
+down: vault-revoke
 	${COMPOSE} down
 
 ## Database
@@ -15,7 +15,7 @@ db-up:
 db-reload:
 	${COMPOSE} up -d --force-recreate database
 
-db-down:
+db-down: vault-revoke
 	${COMPOSE} down database
 
 db-wait:
@@ -59,7 +59,7 @@ app-build:
 
 app-reload: app-build app-up
 
-app-down:
+app-down: vault-revoke
 	${COMPOSE} down app
 
 app-bash:
@@ -81,7 +81,7 @@ vault-build:
 
 vault-reload: vault-build vault-up
 
-vault-down:
+vault-down: vault-revoke
 	${COMPOSE} down vault
 
 vault-bash:
