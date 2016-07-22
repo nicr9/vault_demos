@@ -21,5 +21,6 @@ database:
     - "MYSQL_ROOT_PASSWORD=passw0rd"
   volumes:
     - "./mysql:/opt"
+    - "./config/my.cnf:/etc/mysql/my.cnf"
   ports:
     - 3306

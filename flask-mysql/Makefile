@@ -43,6 +43,9 @@ db-bash:
 db-logs:
 	${COMPOSE} logs -f database
 
+db-query-logs:
+	docker exec ${PROJECT}_database_1 tail -f /var/log/mysql/query.log
+
 ## App
 
 app-up: vault-token

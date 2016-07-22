@@ -3,6 +3,10 @@
 Flask note taking webapp; Tasks/notes are stored in MySQL and Flask uses Vault
 to retrieve MySQL creds at runtime.
 
+Under the hood, this webapp consists of a flask app, vault and mysql each
+running in their own containers. The flask app connects to Vault to receive
+MySQL credentials and then connects to this DB to store the tasks for the app.
+
 ## Security warnings!
 
 * MySQL root password is hardcoded in `docker-compose.yaml` and in `Makefile`
@@ -20,6 +24,21 @@ When you've got the demo up and running you should be able to visit the webapp
 Fill in the form with a new task and click the "Add task" button. This should
 update the list at the bottom of the page.
 
-Under the hood, this webapp consists of a flask app, vault and mysql each
-running in their own containers. The flask app connects to Vault to receive
-MySQL credentials and then connects to this DB to store the tasks for the app.
+If you want to make sure that the webapp is using Vault's dynamic credentials
+you can run the following to list mysql users:
+
+```bash
+make db-users
+```
+
+It should list root as well as one or more dynamically created users.
+
+Then you can tail mysql's general query log while you interact with the demo:
+
+```bash
+make db-query-logs
+```
+
+This should detail which users are connecting to MySQL (it should be one of the
+dynamic users you saw listed in the previous step, not root) and what queries
+they are running.
