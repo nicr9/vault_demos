@@ -94,7 +94,7 @@ vault-init:
 	docker exec ${PROJECT}_vault_1 vault mount mysql
 	docker exec ${PROJECT}_vault_1 vault write mysql/config/connection connection_url="root:${MYSQL_PASSWORD}@tcp(database:3306)/"
 	docker exec ${PROJECT}_vault_1 vault write mysql/config/lease lease=1h lease_max=24h
-	docker exec ${PROJECT}_vault_1 vault write mysql/roles/flaskapp sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT ALL ON *.* TO '{{name}}'@'%';"
+	docker exec ${PROJECT}_vault_1 vault write mysql/roles/flaskapp sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT INSERT, SELECT ON VaultDemo.todolist TO '{{name}}'@'%';"
 
 vault-token:
 	docker exec ${PROJECT}_vault_1 vault token-create --format=json > flaskapp/vault.token
