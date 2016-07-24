@@ -1,5 +1,6 @@
 from flask import Flask, render_template, json, request
 from flask_mysqldb import MySQL
+from flask_mysqldb import MySQLdb
 from json import load as json_load
 from json import dumps as json_dumps
 from hvac import Client as Vault
@@ -69,8 +70,8 @@ def send_task():
         cur = mysql.connection.cursor()
         query = 'INSERT INTO todolist (title, body) VALUES ("{}", "{}")'
         status = cur.execute(query.format(_title, _body))
-    except:
-        return "Exception occured: {}".format(e), 500
+    except Exception as e:
+        return "{}: {}".format(e.__class__.__name__, e.args[1]), 500
     else:
         if status:
             return "ok: {}".format(status), 203
@@ -78,6 +79,29 @@ def send_task():
             return "Server Error: {}".format(status), 500
     finally:
         mysql.connection.commit()
+
+@app.route("/truncate")
+def truncate():
+    """
+    This task should fail! It attempts to truncate the database but it shouldn't
+    have privledges to do so.
+    """
+    try:
+        cur = mysql.connection.cursor()
+        query = 'TRUNCATE TABLE todolist'
+        status = cur.execute(query)
+    except MySQLdb.OperationalError as e:
+        return "{}".format(e.args[1]), 403
+    except Exception as e:
+        return "{}: {}".format(e.__class__.__name__, e.args[1]), 500
+    else:
+        if status:
+            return "ok: {}".format(status), 203
+        else:
+            return "Server Error: {}".format(status), 500
+    finally:
+        mysql.connection.commit()
+
 
 if __name__ == "__main__":
     authenticate_mysql()
