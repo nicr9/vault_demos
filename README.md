@@ -30,12 +30,8 @@ You'll need to install the following to get these demos working:
 
 * [docker](https://docs.docker.com/engine/installation/)
 * [docker-compose](https://docs.docker.com/compose/install/)
-
-There are also some optional requirements. These aren't part of the critical
-path (you can run the demos without them) but they are used to script some
-common operations for debugging the demos.
-
 * [jq](https://github.com/stedolan/jq)
+* make
 
 ## Running a demo
 
