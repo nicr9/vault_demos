@@ -44,17 +44,20 @@ def main():
         cur = mysql.connection.cursor()
         query = 'SELECT * FROM todolist'
         status = cur.execute(query)
-    except:
-        results = []
+    except MySQLdb.OperationalError as e:
+        error, code = "{}".format(e.args[1]), 403
+        tasks = []
     else:
-        results = [{'title': title, 'body': body}
+        error, code = "", 200
+        tasks = [{'title': title, 'body': body}
                 for _, title, body in cur.fetchall()]
 
-    return render_template(
-            "index.html",
-            tasks=results,
-            creds=json_dumps(MYSQL_CREDENTIALS, separators=(',<br>', ': ')),
-            )
+    if error:
+        return render_template("error.html", title="Can't connect",
+                message=error), code
+
+    creds = json_dumps(MYSQL_CREDENTIALS, separators=(',<br>', ': '))
+    return render_template("index.html", tasks=tasks, creds=creds), code
 
 @app.route("/send-task", methods=['POST'])
 def send_task():
@@ -102,7 +105,8 @@ def truncate():
     finally:
         mysql.connection.commit()
 
-    return render_template("truncate.html", message=results), code
+    return render_template("error.html", title="Truncation failed",
+            message=results), code
 
 if __name__ == "__main__":
     authenticate_mysql()
