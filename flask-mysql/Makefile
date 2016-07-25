@@ -52,7 +52,8 @@ app-up: vault-token
 	${COMPOSE} up -d app
 
 app-recreate: vault-revoke vault-token
-	${COMPOSE} up -d --force-recreate app
+	${COMPOSE} stop app
+	${COMPOSE} up -d app
 
 app-build:
 	${COMPOSE} build app
@@ -100,5 +101,18 @@ vault-token:
 	docker exec ${PROJECT}_vault_1 vault token-create --format=json > flaskapp/vault.token
 
 vault-revoke:
+ifeq ($(wildcard flaskapp/vault.token),)
+	echo "Token doesn't exist, skipping revoke..."
+else
 	jq -r .auth.client_token flaskapp/vault.token | xargs docker exec ${PROJECT}_vault_1 vault token-revoke
 	rm flaskapp/vault.token
+endif
+
+vault-seal:
+	docker exec ${PROJECT}_vault_1 vault seal
+
+vault-unseal:
+	docker exec -it ${PROJECT}_vault_1 vault unseal
+
+vault-status:
+	docker exec ${PROJECT}_vault_1 vault status
