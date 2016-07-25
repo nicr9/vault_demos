@@ -19,6 +19,16 @@ MySQL credentials and then connects to this DB to store the tasks for the app.
 * It should be possible to give Vault access to a more restricted MySQL user than root. As far as I know they just need privileges to create other users
 * Vault token for Flask app containers is passed through a mount, kubernetes secrets might be a safer option but I'm not 100% sure why yet (that means using k8s instead of compose)
 * Because we're using Vault's development server, it's easy to `docker exec /bin/sh` into the Vault server and have root access to secrets stored there
+* Connection from Flask app to Vault is currently over a HTTP connection
+
+## Preparing to run this demo
+
+You'll need to install the following to get this demo working:
+
+* [docker](https://docs.docker.com/engine/installation/)
+* [docker-compose](https://docs.docker.com/compose/install/)
+* [jq](https://github.com/stedolan/jq)
+* make
 
 ## What to expect from this demo
 

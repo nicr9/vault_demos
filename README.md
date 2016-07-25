@@ -24,15 +24,6 @@ Here's some other examples I wanna write up when I have the time:
 * Can I store/dynamically create Let's Encrypt HTTPS certs via Vault?
 * Using Vault's github authentication backend; Manage access for a whole company
 
-## Preparing a demo
-
-You'll need to install the following to get these demos working:
-
-* [docker](https://docs.docker.com/engine/installation/)
-* [docker-compose](https://docs.docker.com/compose/install/)
-* [jq](https://github.com/stedolan/jq)
-* make
-
 ## Running a demo
 
 Each demo directory includes a fairly extensive `Makefile` with simple commands

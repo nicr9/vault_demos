@@ -1,4 +1,4 @@
-PROJECT=vaultdemo
+PROJECT=flaskmysql
 MYSQL_PASSWORD=passw0rd
 COMPOSE=docker-compose --project=${PROJECT}
 
