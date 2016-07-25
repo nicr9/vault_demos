@@ -91,17 +91,18 @@ def truncate():
         query = 'TRUNCATE TABLE todolist'
         status = cur.execute(query)
     except MySQLdb.OperationalError as e:
-        return "{}".format(e.args[1]), 403
+        results, code = "{}".format(e.args[1]), 403
     except Exception as e:
-        return "{}: {}".format(e.__class__.__name__, e.args[1]), 500
+        results, code = "{}: {}".format(e.__class__.__name__, e.args[1]), 500
     else:
         if status:
-            return "ok: {}".format(status), 203
+            results, code = "ok: {}".format(status), 203
         else:
-            return "Server Error: {}".format(status), 500
+            results, code = "Server Error: {}".format(status), 500
     finally:
         mysql.connection.commit()
 
+    return render_template("truncate.html", message=results), code
 
 if __name__ == "__main__":
     authenticate_mysql()
