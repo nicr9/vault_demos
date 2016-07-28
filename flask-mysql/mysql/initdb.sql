@@ -1,6 +1,6 @@
-CREATE DATABASE VaultDemo;
+CREATE DATABASE IF NOT EXIST VaultDemo;
 
-CREATE TABLE `VaultDemo`.`todolist` (
+CREATE TABLE IF NOT EXIST `VaultDemo`.`todolist` (
       `task_id` BIGINT NOT NULL AUTO_INCREMENT,
       `title` VARCHAR(20) NULL,
       `body` VARCHAR(100) NULL,
